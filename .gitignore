@@ -1,0 +1,48 @@
+# ============================================================
+#  GITIGNORE - PROTECTS YOUR API KEY
+#  The .env file contains your secret API key.
+#  This file ensures it is NEVER committed to Git.
+# ============================================================
+
+# Environment variables (SECRET - never commit!)
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# Node (if any leftover)
+node_modules/
+npm-debug.log*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Misc
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/

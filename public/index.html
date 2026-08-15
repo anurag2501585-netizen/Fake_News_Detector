@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fake News Detector</title>
+    <style>
+      :root {
+        --bg1: #0f172a;
+        --bg2: #1e1b4b;
+        --bg3: #312e81;
+        --card: rgba(15, 23, 42, 0.62);
+        --text: #e2e8f0;
+        --muted: #cbd5e1;
+        --primary: #8b5cf6;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --neutral: #94a3b8;
+        --border: rgba(255,255,255,0.12);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background: radial-gradient(circle at top left, rgba(168,85,247,0.35), transparent 25%),
+                    radial-gradient(circle at bottom right, rgba(59,130,246,0.35), transparent 30%),
+                    linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .container {
+        width: min(900px, 100%);
+        background: var(--card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
+        padding: 28px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 4vw, 2.7rem);
+      }
+
+      .subtext {
+        margin: 0 0 24px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 180px;
+        resize: vertical;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.55);
+        color: var(--text);
+        padding: 16px;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      textarea:focus {
+        outline: 2px solid rgba(139, 92, 246, 0.8);
+        border-color: transparent;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        color: white;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .result {
+        margin-top: 28px;
+        padding: 18px 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.4);
+        display: none;
+      }
+
+      .result.visible {
+        display: block;
+      }
+
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .badge.real { background: rgba(34,197,94,0.15); color: #86efac; }
+      .badge.fake { background: rgba(239,68,68,0.15); color: #fca5a5; }
+      .badge.misleading { background: rgba(245,158,11,0.15); color: #fcd34d; }
+      .badge.unverified { background: rgba(148,163,184,0.15); color: #e2e8f0; }
+
+      .score-wrap {
+        margin: 14px 0 10px;
+      }
+
+      .score-label {
+        margin-bottom: 6px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .bar {
+        width: 100%;
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+      }
+
+      .fill {
+        height: 100%;
+        border-radius: inherit;
+        width: 0;
+        background: linear-gradient(90deg, #22c55e, #8b5cf6, #ef4444);
+        transition: width 0.5s ease;
+      }
+
+      .explanation {
+        color: var(--text);
+        line-height: 1.7;
+        margin-top: 12px;
+      }
+
+      .error {
+        color: #fecaca;
+        background: rgba(127, 29, 29, 0.3);
+        border: 1px solid rgba(239,68,68,0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Fake News Detector</h1>
+      <p class="subtext">
+        Paste a headline, article text, or social claim below. The backend will check it using the configured Gemini model and return a verdict, confidence score, and explanation.
+      </p>
+
+      <textarea id="newsText" placeholder="Example: 'Scientists discovered that drinking only water cures all diseases...'"></textarea>
+
+      <div class="actions">
+        <button id="analyzeBtn" type="button">Analyze</button>
+        <span id="status" class="status">Ready</span>
+      </div>
+
+      <section id="result" class="result" aria-live="polite">
+        <div class="header-row">
+          <div id="verdictBadge" class="badge">Verdict</div>
+        </div>
+
+        <div class="score-wrap">
+          <div class="score-label">
+            <span>Confidence</span>
+            <strong id="scoreValue">0%</strong>
+          </div>
+          <div class="bar"><div id="scoreFill" class="fill"></div></div>
+        </div>
+
+        <p id="explanation" class="explanation"></p>
+      </section>
+    </main>
+
+    <script>
+      const input = document.getElementById('newsText');
+      const button = document.getElementById('analyzeBtn');
+      const status = document.getElementById('status');
+      const result = document.getElementById('result');
+      const verdictBadge = document.getElementById('verdictBadge');
+      const scoreValue = document.getElementById('scoreValue');
+      const scoreFill = document.getElementById('scoreFill');
+      const explanation = document.getElementById('explanation');
+
+      function setVerdictClass(verdict) {
+        verdictBadge.className = 'badge ' + verdict.toLowerCase();
+      }
+
+      function renderResult(data) {
+        const verdict = data.verdict || 'Unverified';
+        const score = Number(data.confidence_score || 0);
+
+        setVerdictClass(verdict);
+        verdictBadge.textContent = verdict;
+        scoreValue.textContent = `${score}%`;
+        scoreFill.style.width = `${score}%`;
+        explanation.textContent = data.explanation || 'No explanation provided.';
+        result.classList.add('visible');
+        result.classList.remove('error');
+      }
+
+      async function analyzeText() {
+        const text = input.value.trim();
+        if (!text) {
+          status.textContent = 'Please enter some news text first.';
+          input.focus();
+          return;
+        }
+
+        button.disabled = true;
+        status.textContent = 'Checking claim...';
+        result.classList.remove('visible');
+
+        try {
+          const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || 'Something went wrong.');
+          }
+
+          renderResult(data);
+          status.textContent = 'Analysis complete';
+        } catch (err) {
+          verdictBadge.className = 'badge error';
+          verdictBadge.textContent = 'Error';
+          scoreValue.textContent = '0%';
+          scoreFill.style.width = '0%';
+          explanation.textContent = err.message || 'Unable to analyze this text.';
+          result.classList.add('visible');
+          result.classList.add('error');
+          status.textContent = 'Request failed';
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      button.addEventListener('click', analyzeText);
+      input.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+          analyzeText();
+        }
+      });
+    </script>
+  </body>
+</html>
