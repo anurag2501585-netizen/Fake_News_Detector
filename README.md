@@ -6,7 +6,8 @@ An AI-powered **Fake News Detection** web application with a stunning **Glassmor
 
 - 🧊 **Glassmorphism UI** — Frosted glass card with `backdrop-filter`, glowing borders, and soft layered shadows
 - 🌈 **Animated mesh-gradient background** — Deep purples, blues, and magenta that float and pulse
-- 🤖 **OPEN AI integration** — Uses `OPENAI free model` for fast, free fact-checking
+- 🤖 **OPEN AI integration** — Uses `openai/gpt-oss-20b:free
+` for fast, free fact-checking
 - 🔐 **Secure API key** — Key lives on the server (`.env`), never exposed to the frontend or Git
 - 📊 **Rich results** — Color-coded verdict badge, animated confidence score bar, and detailed explanation
 - ⚡ **Smooth UX** — Loading spinner with glowing pulse, fade-in results, graceful error handling
