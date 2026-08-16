@@ -31,6 +31,7 @@ cp .env.example .env
 Then open `.env` and replace `YOUR_API_KEY_HERE` with your actual key:
 ```
 OPENROUTER_API_KEY=your-actual-key-here
+GEMINI_API_KEY=your-actual-key-here
 ```
 
 ### 5. Run the server
@@ -63,7 +64,7 @@ Your API key is **never committed** to Git thanks to the `.gitignore` file:
 ## 🗂️ Project Structure
 
 ```
-├── app.py              # Flask backend (holds API key, proxies OPENAI)
+├── app.py              # Flask backend (holds API key, proxies GEMINI AND OPENAI)
 ├── public/
 │   └── index.html      # Frontend (glassmorphism UI + JS)
 ├── requirements.txt    # Python dependencies
