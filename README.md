@@ -16,7 +16,7 @@ An AI-powered **Fake News Detection** web application with a stunning **Glassmor
 
 ### 1. Get a free OPENAI API Key
 Go to [OPENROUTER WEBSITE](https://openrouter.ai) → Create API key (free tier: 15 req/min).
-### 2. Get a free Gemini API Key 
+### 2. Get a free Gemini API Key. 
 Go to [GEMINI WEBSITE](https://aistudio.google.com) → Create API key
 
 ### 3. Install dependencies
